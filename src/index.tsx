@@ -4,7 +4,7 @@ import { Route, Router } from '@solidjs/router';
 import { MetaProvider } from '@solidjs/meta';
 import LoginPage from './login-page/index.tsx';
 import App from './App.tsx';
-import './Globals'
+import './Globals.d.ts'
 import './index.css'
 
 
