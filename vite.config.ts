@@ -14,7 +14,7 @@ export default defineConfig({
 		port: 5173
 	},
 	build: {
-		outDir: "../build/public",
+		outDir: "build",
 		emptyOutDir: true, // must be true to overwrite outdir since it is outside the project dir (../)
 		sourcemap: true,
 	}
