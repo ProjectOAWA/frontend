@@ -1,26 +1,23 @@
 import { Title } from "@solidjs/meta";
-import { createSignal, Match, Switch } from "solid-js";
+import { createResource, createSignal, Match, Show, Switch } from "solid-js";
 import RegisterState from "./states/02-setup-webauthn";
 import StartState from "./states/01-login-register";
 import style from './login.module.css';
 
 export type State = 'START' | 'REGISTER' | 'COMPLETE';
 
+async function initializeSession() {
+    const params = new URLSearchParams(window.location.search);
+    const res = await fetch(`/authorize?${params}`, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
+    });
+    if (!res.ok) throw new Error(`Authorization failed: ${res.status}`);
+}
+
 export default function LoginPage() {
     const [state, setState] = createSignal<State>('START');
-
-
-    // TODO: Send login options with initial request
-    // const [loginOptions, setLoginOptions] = createSignal({});
-    // createEffect(() => {
-    //     fetch('/webauthn/login/options', {
-    //         method: 'POST',
-    //         headers: { 'Content-Type': 'application/json' },
-    //         // body: JSON.stringify({ state: state }),
-    //     })
-    //     .then(async r => setLoginOptions(await r.json()))
-    // }, []);
-    // createEffect(() => { console.log("Updated login options: ", loginOptions()) }, [loginOptions]);
+    const [session] = createResource(initializeSession);
 
     return (
         <>
@@ -29,10 +26,12 @@ export default function LoginPage() {
         </>
         <div class={style.wrapper}>
             <div class={style.plain}>
-                <Switch>
-                    <Match when={state() === 'START'}><StartState setState={setState}/></Match>
-                    <Match when={state() === 'REGISTER'}><RegisterState/></Match>
-                </Switch>
+                <Show when={!session.error} fallback={<p>Authorization failed.</p>}>
+                    <Switch>
+                        <Match when={state() === 'START'}><StartState setState={setState}/></Match>
+                        <Match when={state() === 'REGISTER'}><RegisterState/></Match>
+                    </Switch>
+                </Show>
                 <footer class={`${style.footer} muted`}>
                     Copyright &copy; 2025
                 </footer>
